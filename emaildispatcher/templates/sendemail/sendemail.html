@@ -1,0 +1,167 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<style>
+    .form-content-adjust {
+        height: 250px;
+        background: white;
+        overflow-x: hidden;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script>
+
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+
+    $(document).ready(function () {
+        $.ajax({
+            url:"{% url 'retrieve_emails' %}",
+            type:'GET',
+            success:function(response){
+                console.log(response)
+            }
+        })
+        // $('#recipient-email-list').
+        if ($('#recipient-email-list li').length > 0) {
+            $('#no-emails').remove()
+        } else {
+            return
+        }
+    })
+    $(document).on('click', '#add-email', function (e) {
+        e.preventDefault();
+        let value = $('#recipient-email').val()
+        $('#recipient-email-list').append('<li class="list-group-item d-flex align-items-center justify-content-between" data-emailvalue="' + value + '"><span>' + value + '</span><a class="btn btn-danger btn-xs pull-right remove-item" id="delete-email" style="color:white;">X</a>')
+        $('#recipient-email').val('')
+    })
+    $(document).on('click', '#delete-email', function (e) {
+        e.preventDefault()
+        $(this).parent().remove()
+    })
+    $(document).on('click', '#submit-recipient', function (e) {
+        e.preventDefault();
+        var emails = []
+        $('#recipient-email-list li').each(function (i) {
+            emails.push($(this).attr('data-emailvalue').toString())
+        })
+        var data = {"emails":emails}
+        console.log(data)
+        $.ajax({
+            url:"{% url 'send_email' %}",
+            type:'POST',
+            dataType:'JSON',
+            data:data,
+            success:function(response){
+                console.log(response)
+            }
+        });
+    })
+
+</script>
+
+<div class="container py-5">
+    <!-- For demo purpose -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-6">Send Email</h1>
+        </div>
+    </div> <!-- End -->
+    <div class="row">
+        <div class="col-lg-6 mx-auto">
+            <div class="card ">
+                <div class="card-header">
+                    <div class="bg-white shadow-sm pt-4 pl-2 pr-2 pb-2">
+                        <!-- Credit card form tabs -->
+                        <ul role="tablist" class="nav bg-light nav-pills rounded nav-fill mb-3">
+                            <li class="nav-item"> <a data-toggle="pill" href="#add-recipient" class="nav-link active"> <i
+                                        class="fas fa-mobile-alt mr-2"></i> Add Recipient</a> </li>
+                            <li class="nav-item"> <a data-toggle="pill" href="#send-email" class="nav-link "> <i
+                                        class="fas fa-credit-card mr-2"></i>Compose</a> </li>
+                            <li class="nav-item"> <a data-toggle="pill" href="#config-sender" class="nav-link "> <i
+                                        class="fab fa-paypal mr-2"></i> Config Sender </a> </li>
+                        </ul>
+                    </div> <!-- End -->
+                    <!-- Credit card form content -->
+                    <div class="tab-content">
+                        <div id="send-email" class="tab-pane fade pt-3">
+                            <form role="form">
+                                <div class="form-group"> <label for="username">
+                                        <h6>To</h6>
+                                    </label> <input type="email" name="email" placeholder="Receiver's Email" required
+                                        class="form-control "> </div>
+                                <div class="form-group"> <label for="subject">
+                                        <h6>Subject</h6>
+                                    </label> <input type="text" id="subject" name="subject" placeholder="Email Subject"
+                                        required class="form-control "> </div>
+                                <div class="form-group"> <label for="email-body">
+                                        <h6>Body</h6>
+                                    </label>
+                                    <div class="form-group">
+                                        <textarea name="email-body" id="email-body" cols="10" rows="10"
+                                            class="form-control" placeholder="Email Body" required></textarea>
+    
+                                    </div>
+                                </div>
+    
+                                <div class="card-footer"> <button type="button"
+                                        class="subscribe btn btn-primary btn-block shadow-sm"> Send Email </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div id="add-recipient" class="tab-pane show active fade pt-3">
+                        <form action="" id="add-recipient">
+                            <div class="form-group">
+                                <label for="recipient-email">
+                                    <h6>Email</h6>
+                                </label>
+                                <div class="input-group">
+                                    <input type="email" name="email" class="form-control" id="recipient-email"
+                                        placeholder="Recipient Email">
+                                    <div class="input-group-append"> <span class="input-group-text text-muted">
+                                            <a class="btn btn-success" type="button" id="add-email"
+                                                style="color: white;">Add</a></span> </div>
+                                </div>
+                            </div>
+                            <div class="form-group form-content-adjust">
+                                <ul class="list-group" id="recipient-email-list"></ul>
+                            </div>
+
+                            <a class="btn btn-success" style="color:white;" id="submit-recipient">Save Changes</a>
+                        </form>
+                    </div>
+                    
+                    <div id="config-sender" class="tab-pane fade pt-3">
+                        <form action="" id="config-sender">
+                            <div class="form-group">
+                                <!-- <label for="account-holder"></label> -->
+                                <h6>Select Account Provider</h6>
+                                <select name="account-holder" id="account-holder" class="form-control">
+                                    <option value="">Account Holder</option>
+                                    <option value="gmail">Gmail - Google</option>
+                                    <option value="outlook">Outlook - Microsoft</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <h6>Username</h6>
+                                <input type="email" class="form-control" placeholder="Email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <h6>Password</h6>
+                                <input type="password" class="form-control" placeholder="Password" name="password"
+                                    required>
+                            </div>
+                            <div class="form-group "> <label class="radio-inline"> <input type="checkbox"
+                                        name="keeplogin" checked> Keep Me logged In </label> </div>
+                            <p> <button type="button" class="btn btn-primary "><i
+                                        class="fab fa-paypal mr-2"></i>Cofigure Account</button> </p>
+
+                        </form>
+                    </div>
+                
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
