@@ -19,10 +19,12 @@
             url:"{% url 'retrieve_emails' %}",
             type:'GET',
             success:function(response){
-                console.log(response)
+                for (var i = 0; i < response[0].emails.length; i++){
+                    var email = response[0].emails[i]
+                    $('#recipient-email-list').append('<li class="list-group-item d-flex align-items-center justify-content-between" data-emailvalue="' + email + '"><span>' + email + '</span><a class="btn btn-danger btn-xs pull-right remove-item" id="delete-email" style="color:white;">X</a>')
+                }
             }
         })
-        // $('#recipient-email-list').
         if ($('#recipient-email-list li').length > 0) {
             $('#no-emails').remove()
         } else {
@@ -74,18 +76,38 @@
                     <div class="bg-white shadow-sm pt-4 pl-2 pr-2 pb-2">
                         <!-- Credit card form tabs -->
                         <ul role="tablist" class="nav bg-light nav-pills rounded nav-fill mb-3">
-                            <li class="nav-item"> <a data-toggle="pill" href="#add-recipient" class="nav-link active"> <i
+                            <li class="nav-item"> <a data-toggle="pill" href="#config-sender" class="nav-link active"> <i
+                                        class="fab fa-paypal mr-2"></i> Config Sender </a> </li>
+                            <li class="nav-item"> <a data-toggle="pill" href="#add-recipient" class="nav-link "> <i
                                         class="fas fa-mobile-alt mr-2"></i> Add Recipient</a> </li>
                             <li class="nav-item"> <a data-toggle="pill" href="#send-email" class="nav-link "> <i
                                         class="fas fa-credit-card mr-2"></i>Compose</a> </li>
-                            <li class="nav-item"> <a data-toggle="pill" href="#config-sender" class="nav-link "> <i
-                                        class="fab fa-paypal mr-2"></i> Config Sender </a> </li>
                         </ul>
                     </div> <!-- End -->
                     <!-- Credit card form content -->
                     <div class="tab-content">
                         <div id="send-email" class="tab-pane fade pt-3">
                             <form role="form">
+                                <div class="form-group">
+                                    <!-- <label for="account-holder"></label> -->
+                                    <h6>Select Account Provider</h6>
+                                    <select name="account-holder" id="account-holder" class="form-control">
+                                        <option value="">Account Holder</option>
+                                        <option value="gmail">Gmail - Google</option>
+                                        <option value="outlook">Outlook - Microsoft</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="username"><h6>Username</h6></label>
+                                    <input type="email" id="username" class="form-control" placeholder="Email" name="email" required>
+                                </div>
+                                <div class="form-group"><label for="password">
+                                    <h6>Password</h6>
+                                </label>
+                                    <input type="password" id="password" class="form-control" placeholder="Password" name="password"
+                                        required>
+                                        <!-- <label class="radio-inline"> <input type="checkbox" name="show-password" checked>Show Password</label> -->
+                                </div>
                                 <div class="form-group"> <label for="username">
                                         <h6>To</h6>
                                     </label> <input type="email" name="email" placeholder="Receiver's Email" required
@@ -110,7 +132,7 @@
                         </div>
                     </div>
 
-                    <div id="add-recipient" class="tab-pane show active fade pt-3">
+                    <div id="add-recipient" class="tab-pane fade pt-3">
                         <form action="" id="add-recipient">
                             <div class="form-group">
                                 <label for="recipient-email">
@@ -131,18 +153,26 @@
                             <a class="btn btn-success" style="color:white;" id="submit-recipient">Save Changes</a>
                         </form>
                     </div>
+
+                    <script>
+                        $(document).on('click','#user-login',function(e){
+                            e.preventDefault();
+                            var loginData = $('#login-form').serializeArray()
+                            console.log(loginData)
+                            $.ajax({
+                                url:"{% url 'login_view' %}",
+                                type:'POST',
+                                data:loginData,
+                                success:function(response){
+                                    console.log(response)
+                                }
+                            })
+                        });
+                    </script>
                     
-                    <div id="config-sender" class="tab-pane fade pt-3">
-                        <form action="" id="config-sender">
-                            <div class="form-group">
-                                <!-- <label for="account-holder"></label> -->
-                                <h6>Select Account Provider</h6>
-                                <select name="account-holder" id="account-holder" class="form-control">
-                                    <option value="">Account Holder</option>
-                                    <option value="gmail">Gmail - Google</option>
-                                    <option value="outlook">Outlook - Microsoft</option>
-                                </select>
-                            </div>
+                    <div id="config-sender" class="tab-pane show active fade pt-3">
+                        <form action="" id="login-form">
+                            
                             <div class="form-group">
                                 <h6>Username</h6>
                                 <input type="email" class="form-control" placeholder="Email" name="email" required>
@@ -151,11 +181,12 @@
                                 <h6>Password</h6>
                                 <input type="password" class="form-control" placeholder="Password" name="password"
                                     required>
+                                    <label class="radio-inline"> <input type="checkbox" name="show-password" checked>Show Password</label>
                             </div>
                             <div class="form-group "> <label class="radio-inline"> <input type="checkbox"
                                         name="keeplogin" checked> Keep Me logged In </label> </div>
-                            <p> <button type="button" class="btn btn-primary "><i
-                                        class="fab fa-paypal mr-2"></i>Cofigure Account</button> </p>
+                            <p> <a type="button" class="btn btn-primary" id="user-login" style="color:white;"><i
+                                        class="fab fa-paypal mr-2"></i>Login</a> </p>
 
                         </form>
                     </div>
